@@ -3,43 +3,29 @@ void HTTP_init(void) {
   HTTP.on("/system_info", system_info_handler);
   HTTP.on("/available_networks", available_networks_handler);
  HTTP.on("/io", gpio_handler);
- HTTP.on("/mqtt", config_mqtt_handler);
+ //HTTP.on("/mqtt", config_mqtt_handler);
   update();
   HTTP.begin();
 }
 
-void config_mqtt_handler() {
-  if (HTTP.argName(0) == "server" && HTTP.argName(1) == "port" && HTTP.argName(2) == "user" && HTTP.argName(3) == "password") {
-    M_Server = HTTP.arg("server");
-    M_Port = HTTP.arg("port").toInt();
-    M_User = HTTP.arg("user");
-    M_Password = HTTP.arg("password");
-    saveConfig();
-    HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
-  }
-  if (HTTP.argName(0) == "Index" && HTTP.argName(1) == "TopicNum" && HTTP.argName(2) == "TopicDescription") {
-    GpioTopics[HTTP.arg("Index").toInt()]= HTTP.arg("TopicNum");
-    GpioDescription[HTTP.arg("Index").toInt()]= HTTP.arg("TopicDescription");
-    saveConfig();
-    HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
-  }
-  //HTTP.send(404, "text/plain", "ERR"); // отправляем ответ о выполнении
-}
 
 void gpio_handler() {
   if (HTTP.args() == 0) {
       String json = "[";
-     for(int i=0; i<4;i++){
-       json += "[";
-      json += GpioLevel[digitalRead(GpioList[i])];
-      json += ",\"";
+     for(int i=0; i<8;i++){
+       //json += "[";
+      json += pcf8574.read(i);
+      if(i<7){
+        json += ",";
+      }
+      //json += ",\"";
      // json += GpioDescription[i];
       
-      if(i != 3){
-      json += "\"],";
-      }else {
-          json += "\"]";
-      }
+//      if(i != 3){
+//      json += "\"],";
+//      }else {
+//          json += "\"]";
+//      }
      }
       
       json += "]";
@@ -47,7 +33,8 @@ void gpio_handler() {
    
   }
   if (HTTP.argName(0) == "set" && HTTP.argName(1) == "val") {
-     digitalWrite(GpioList[HTTP.arg("set").toInt()], GpioLevel[HTTP.arg("val").toInt()]);
+    pcf8574.write(HTTP.arg("set").toInt(),HTTP.arg("val").toInt());
+     //digitalWrite(GpioList[HTTP.arg("set").toInt()], GpioLevel[HTTP.arg("val").toInt()]);
     HTTP.send(200); // отправляем ответ о выполнении
   }
 }

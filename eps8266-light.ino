@@ -7,13 +7,18 @@
 #include <ArduinoJson.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <pcf8574_esp.h>
 #include <Wire.h>
 #include <AM2320.h>
 
 AM2320 th;
 #define DS18B20_PIN 5
+
 OneWire oneWire(DS18B20_PIN);
 DallasTemperature sensors(&oneWire);
+
+TwoWire testWire;
+PCF857x pcf8574(0x27, &testWire);
 
 const String websenderURI = "http://192.168.1.141/update.php";
 
@@ -21,7 +26,7 @@ const String websenderURI = "http://192.168.1.141/update.php";
 ESP8266WebServer HTTP(80);
 
 WiFiClient wclient;
-PubSubClient client(wclient);
+//PubSubClient client(wclient);
 // Для файловой системы
 File fsUploadFile;
 
@@ -36,18 +41,16 @@ void setup() {
 
   //Если не удалось подключиться клиентом запускаем режим AP
   // доступ к настройкам по адресу http://192.168.4.1
-  wifiManager.autoConnect("AutoConnectAP");
-
+  //wifiManager.autoConnect("AutoConnectAP");
+  wifiManager.autoConnect(String("ESP_"+String(ESP.getChipId())).c_str(), String("ESP_"+String(ESP.getChipId())).c_str());
   //если подключение к точке доступа произошло сообщаем
   Serial.println("connected...yeey :)");
 
   Wire.begin();
    sensors.begin();
   sensors.setResolution(12);
-  for (int i = 0; i < PORT; i++) {
-    pinMode(GpioList[i], OUTPUT);
-    digitalWrite(GpioList[i], HIGH);
-  }
+
+  pcf8574.write8(1);
 
   FS_init();
   loadConfig();
@@ -67,12 +70,12 @@ void loop() {
 
   HTTP.handleClient();
   delay(1);
-  if (client.connected()) {
-    client.loop();
-    refreshData();
-  } else {
-    mqttConnect();
-  }
-
+//  if (client.connected()) {
+//    client.loop();
+//    refreshData();
+//  } else {
+//    mqttConnect();
+//  }
+websender();
 
 }
