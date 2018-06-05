@@ -12,7 +12,7 @@
 #include <AM2320.h>
 
 AM2320 th;
-#define DS18B20_PIN 5
+#define DS18B20_PIN 0
 
 OneWire oneWire(DS18B20_PIN);
 DallasTemperature sensors(&oneWire);
@@ -50,7 +50,7 @@ void setup() {
    sensors.begin();
   sensors.setResolution(12);
 
-  pcf8574.write8(1);
+  pcf8574.write8(0xFF);
 
   FS_init();
   loadConfig();

@@ -4,7 +4,7 @@ void websender() {
     //th.Read();
     
     HTTPClient httpClient;
-    httpClient.setUserAgent("ShinePhone 1.3 (iPhone; iOS 9.0.2; Scale/1.0)"); 
+    //httpClient.setUserAgent("ShinePhone 1.3 (iPhone; iOS 9.0.2; Scale/1.0)"); 
 
     int deviceCount = sensors.getDeviceCount();  // узнаем количество подключенных градусников
     sensors.requestTemperatures();
@@ -14,9 +14,10 @@ void websender() {
   if (th.measure()) {
    
     req += "&humidity_"+String(ESP.getChipId())+"=";
-    req += (float)th.getTemperature();
+    req += th.getHumidity();
     req += "&temperature_"+String(ESP.getChipId())+"=";
-    req += (float)th.getHumidity();
+    req += th.getTemperature();
+    
   }
    
     for (int i = 0; i <= deviceCount - 1; i++) {

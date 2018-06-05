@@ -14,7 +14,7 @@ void gpio_handler() {
       String json = "[";
      for(int i=0; i<8;i++){
        //json += "[";
-      json += pcf8574.read(i);
+      json += pcf8574.read(i) == 1 ? 0:1;
       if(i<7){
         json += ",";
       }
@@ -33,7 +33,7 @@ void gpio_handler() {
    
   }
   if (HTTP.argName(0) == "set" && HTTP.argName(1) == "val") {
-    pcf8574.write(HTTP.arg("set").toInt(),HTTP.arg("val").toInt());
+    pcf8574.write(HTTP.arg("set").toInt(),HTTP.arg("val").toInt() == 1 ? 0 : 1);
      //digitalWrite(GpioList[HTTP.arg("set").toInt()], GpioLevel[HTTP.arg("val").toInt()]);
     HTTP.send(200); // отправляем ответ о выполнении
   }
